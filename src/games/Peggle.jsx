@@ -5,7 +5,8 @@ import Sound from '../sound.js'
 const W = 480, H = 540
 const BALL_R = 7, PEG_R = 9
 const AIM = { x: W / 2, y: 26 }
-const SPEED = 320, GRAV = 460 // launch speed + gravity (shared by sim & trajectory preview)
+const SPEED = 430, GRAV = 460 // launch speed + gravity (shared by sim & trajectory preview)
+const MIN_ANGLE = 0.14 // how flat you may shoot — flatter = more sideways range to the far pegs
 
 export default function Peggle({ onExit }) {
   const [best, submitBest] = useBestScore('peggle')
@@ -52,7 +53,7 @@ export default function Peggle({ onExit }) {
       const mx = (e.clientX - rect.left) * (W / rect.width)
       const my = (e.clientY - rect.top) * (H / rect.height)
       let a = Math.atan2(my - AIM.y, mx - AIM.x)
-      a = Math.max(0.28, Math.min(Math.PI - 0.28, a)) // keep pointing downward
+      a = Math.max(MIN_ANGLE, Math.min(Math.PI - MIN_ANGLE, a)) // keep pointing into the field
       s.aim = a
     }
     const shoot = () => {
