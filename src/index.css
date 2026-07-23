@@ -1,0 +1,142 @@
+/* ============================================================
+   90s GAME — global CRT / Game Boy theme
+   Palette: neon green + digital yellow on deep CRT black-green
+   ============================================================ */
+
+:root {
+  /* backgrounds */
+  --void: #060a06;
+  --bg: #0a120b;
+  --panel: #0e1c10;
+  --panel-2: #12261544;
+  --screen: #0b1a0e;
+
+  /* the two stars: neon green + digital yellow */
+  --green: #39ff14;
+  --green-soft: #57ff6a;
+  --green-dim: #1f7a2b;
+  --green-deep: #0d3a16;
+  --gb-1: #9bbc0f; /* classic gameboy light */
+  --gb-2: #306230; /* classic gameboy dark  */
+  --yellow: #f9f002;
+  --yellow-2: #ffd21c;
+  --amber: #ff9f1c;
+
+  /* support colors (used sparingly, per reference art) */
+  --red: #ff3b30;
+  --pink: #ff5db1;
+  --cyan: #29e7cd;
+  --ink: #04140a;
+
+  --line: #1c3a22;
+
+  --font-title: 'Press Start 2P', monospace;
+  --font-ui: 'Pixelify Sans', system-ui, sans-serif;
+  --font-term: 'VT323', monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--void);
+  color: var(--green);
+  font-family: var(--font-ui);
+  overflow: hidden;
+  -webkit-font-smoothing: none;
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cpath d='M4 2 L4 22 L9 17 L12 24 L16 22 L13 15 L20 15 Z' fill='%2339ff14' stroke='%2304140a' stroke-width='1.5'/%3E%3C/svg%3E") 3 2, auto;
+}
+
+/* ---- CRT overlay: scanlines + vignette + subtle flicker ---- */
+#root { position: relative; height: 100%; }
+
+.crt-overlay {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0) 0px,
+      rgba(0, 0, 0, 0) 2px,
+      rgba(0, 0, 0, 0.22) 3px,
+      rgba(0, 0, 0, 0.22) 4px
+    );
+  mix-blend-mode: multiply;
+}
+.crt-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 120% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.65) 100%);
+}
+.crt-flicker { animation: flicker 6s infinite steps(60); }
+@keyframes flicker {
+  0%, 96%, 100% { opacity: 1; }
+  97% { opacity: 0.86; }
+  98% { opacity: 0.97; }
+  99% { opacity: 0.9; }
+}
+
+/* ---- text helpers ---- */
+.title {
+  font-family: var(--font-title);
+  letter-spacing: 1px;
+  line-height: 1.4;
+}
+.glow { text-shadow: 0 0 6px currentColor, 0 0 14px currentColor; }
+.glow-y { color: var(--yellow); text-shadow: 0 0 6px var(--yellow), 0 0 16px var(--amber); }
+
+/* ---- chunky retro button (matches reference art) ---- */
+.btn {
+  font-family: var(--font-title);
+  font-size: 12px;
+  color: var(--ink);
+  background: var(--green);
+  border: 3px solid var(--ink);
+  border-radius: 6px;
+  padding: 12px 18px;
+  cursor: inherit;
+  box-shadow: 4px 4px 0 var(--green-deep);
+  transition: transform 0.05s, box-shadow 0.05s, background 0.1s;
+  text-transform: uppercase;
+  user-select: none;
+}
+.btn:hover { background: var(--green-soft); }
+.btn:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--green-deep); }
+.btn.yellow { background: var(--yellow); box-shadow: 4px 4px 0 #7a6f00; }
+.btn.yellow:hover { background: var(--yellow-2); }
+.btn.red { background: var(--red); color: #fff; box-shadow: 4px 4px 0 #7a1410; }
+.btn.ghost {
+  background: transparent;
+  color: var(--green);
+  box-shadow: none;
+  border-color: var(--green-dim);
+}
+.btn.ghost:hover { background: #0f2a16; color: var(--green-soft); }
+
+/* scrollbars */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--panel); }
+::-webkit-scrollbar-thumb { background: var(--green-dim); border: 2px solid var(--panel); }
+
+/* dotted retro border (like the reference menu box) */
+.dotted {
+  border: 3px dashed var(--yellow);
+  border-radius: 8px;
+}
+
+canvas { image-rendering: pixelated; display: block; }
+
+@keyframes blink { 50% { opacity: 0; } }
+.blink { animation: blink 1s steps(2) infinite; }
+
+@keyframes pressUp {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
