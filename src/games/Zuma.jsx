@@ -226,15 +226,30 @@ export default function Zuma({ onExit }) {
     if (s.shot) drawBall(ctx, s.shot.x, s.shot.y, s.shot.color)
     // frog / shooter
     const a = s.shooter.angle
+    const ex = Math.cos(a), ey = Math.sin(a)
+    const tipX = CX + ex * 24, tipY = CY + ey * 24
+    // aim guide — a dashed ray that stops at the first marble it would hit
+    if (!s.shot) {
+      let endT = 660
+      for (const b of s.chain) {
+        const t = (b.x - CX) * ex + (b.y - CY) * ey
+        if (t < 24) continue
+        const perp = Math.hypot(b.x - (CX + ex * t), b.y - (CY + ey * t))
+        if (perp < R * 1.4 && t < endT) endT = t
+      }
+      ctx.strokeStyle = 'rgba(249,240,2,0.4)'; ctx.lineWidth = 2; ctx.setLineDash([5, 9])
+      ctx.beginPath(); ctx.moveTo(tipX, tipY); ctx.lineTo(CX + ex * endT, CY + ey * endT); ctx.stroke(); ctx.setLineDash([])
+    }
     ctx.save(); ctx.translate(CX, CY); ctx.rotate(a)
     ctx.fillStyle = '#2e8b57'; ctx.beginPath(); ctx.arc(0, 0, 22, 0, 7); ctx.fill()
-    ctx.fillStyle = '#1e6b3a'; ctx.fillRect(0, -8, 30, 16)
+    ctx.fillStyle = '#1e6b3a'; ctx.fillRect(0, -8, 26, 16)
     ctx.fillStyle = '#f9f002'; ctx.beginPath(); ctx.arc(-6, -12, 6, 0, 7); ctx.arc(-6, 12, 6, 0, 7); ctx.fill()
     ctx.fillStyle = '#04140a'; ctx.beginPath(); ctx.arc(-4, -12, 3, 0, 7); ctx.arc(-4, 12, 3, 0, 7); ctx.fill()
     ctx.restore()
-    // loaded ball + next
-    drawBall(ctx, CX, CY, s.shooter.color, 10)
-    drawBall(ctx, CX + 30, CY + 30, s.shooter.next, 8)
+    // next-ball preview tucked behind the frog
+    drawBall(ctx, CX - ex * 20, CY - ey * 20, s.shooter.next, 7)
+    // the LOADED ball sits in the mouth — this is exactly the marble that launches, same colour
+    drawBall(ctx, tipX, tipY, s.shooter.color, R)
   }
 
   return (

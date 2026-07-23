@@ -5,6 +5,7 @@ import Sound from '../sound.js'
 const W = 480, H = 540
 const BALL_R = 7, PEG_R = 9
 const AIM = { x: W / 2, y: 26 }
+const SPEED = 320, GRAV = 460 // launch speed + gravity (shared by sim & trajectory preview)
 
 export default function Peggle({ onExit }) {
   const [best, submitBest] = useBestScore('peggle')
@@ -56,7 +57,7 @@ export default function Peggle({ onExit }) {
     }
     const shoot = () => {
       const s = g.current; if (!s || s.state !== 'play' || s.ball || s.balls <= 0) return
-      s.ball = { x: AIM.x, y: AIM.y + 14, vx: Math.cos(s.aim) * 200, vy: Math.sin(s.aim) * 200 }
+      s.ball = { x: AIM.x, y: AIM.y + 14, vx: Math.cos(s.aim) * SPEED, vy: Math.sin(s.aim) * SPEED }
       s.balls -= 1; setUi((u) => ({ ...u, balls: s.balls })); Sound.bounce()
     }
     cv.addEventListener('mousemove', aim)
@@ -104,7 +105,7 @@ export default function Peggle({ onExit }) {
     const steps = 4
     for (let st = 0; st < steps; st++) {
       const h = dt / steps
-      b.vy += 460 * h
+      b.vy += GRAV * h
       b.x += b.vx * h; b.y += b.vy * h
       if (b.x < BALL_R) { b.x = BALL_R; b.vx = Math.abs(b.vx) * 0.9 }
       if (b.x > W - BALL_R) { b.x = W - BALL_R; b.vx = -Math.abs(b.vx) * 0.9 }
@@ -136,6 +137,29 @@ export default function Peggle({ onExit }) {
 
   const pegColor = (p) => p.type === 'orange' ? '#ff9f1c' : p.type === 'green' ? '#39ff14' : '#29e7cd'
 
+  // Simulate the shot with the exact same physics and return sampled points,
+  // stopping at the first peg it would strike — so the guide reaches the target.
+  const predictPath = () => {
+    const s = g.current
+    let x = AIM.x, y = AIM.y + 14
+    let vx = Math.cos(s.aim) * SPEED, vy = Math.sin(s.aim) * SPEED
+    const pts = []
+    const h = 1 / 240
+    for (let i = 0; i < 1400; i++) {
+      vy += GRAV * h; x += vx * h; y += vy * h
+      if (x < BALL_R) { x = BALL_R; vx = Math.abs(vx) * 0.9 }
+      if (x > W - BALL_R) { x = W - BALL_R; vx = -Math.abs(vx) * 0.9 }
+      if (i % 4 === 0) pts.push([x, y])
+      let hit = false
+      for (const p of s.pegs) {
+        if (p.hit) continue
+        if ((x - p.x) ** 2 + (y - p.y) ** 2 < (BALL_R + PEG_R) ** 2) { hit = true; break }
+      }
+      if (hit || y > H) break
+    }
+    return pts
+  }
+
   const draw = () => {
     const s = g.current, cv = canvas.current; if (!cv || !s) return
     const ctx = cv.getContext('2d')
@@ -151,10 +175,25 @@ export default function Peggle({ onExit }) {
     })
     // particles
     s.particles.forEach((p) => { ctx.globalAlpha = Math.max(0, p.life * 2.5); ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, 3, 3); ctx.globalAlpha = 1 })
-    // aimer
+    // aim trajectory — a dotted parabola tracing the real path to the first peg
+    if (!s.ball) {
+      const path = predictPath()
+      path.forEach(([x, y], i) => {
+        ctx.globalAlpha = Math.max(0.12, 1 - i / (path.length + 4))
+        ctx.fillStyle = '#f9f002'
+        ctx.beginPath(); ctx.arc(x, y, 2.6, 0, 7); ctx.fill()
+      })
+      ctx.globalAlpha = 1
+      // marker where the ball first lands
+      const end = path[path.length - 1]
+      if (end) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(end[0], end[1], 6, 0, 7); ctx.stroke() }
+    }
+    // aimer cannon
+    const a = s.aim
+    ctx.strokeStyle = '#f9f002'; ctx.lineWidth = 6; ctx.lineCap = 'round'
+    ctx.beginPath(); ctx.moveTo(AIM.x, AIM.y); ctx.lineTo(AIM.x + Math.cos(a) * 22, AIM.y + Math.sin(a) * 22); ctx.stroke()
     ctx.fillStyle = '#f9f002'; ctx.beginPath(); ctx.arc(AIM.x, AIM.y, 10, 0, 7); ctx.fill()
-    ctx.strokeStyle = '#f9f00266'; ctx.lineWidth = 2; ctx.setLineDash([4, 6])
-    ctx.beginPath(); ctx.moveTo(AIM.x, AIM.y); ctx.lineTo(AIM.x + Math.cos(s.aim) * 60, AIM.y + Math.sin(s.aim) * 60); ctx.stroke(); ctx.setLineDash([])
+    ctx.fillStyle = '#04140a'; ctx.beginPath(); ctx.arc(AIM.x, AIM.y, 4, 0, 7); ctx.fill()
     // ball
     if (s.ball) {
       ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(s.ball.x, s.ball.y, BALL_R, 0, 7); ctx.fill()
