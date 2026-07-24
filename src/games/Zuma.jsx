@@ -5,7 +5,9 @@ import Sound from '../sound.js'
 const W = 480, H = 430
 const CX = W / 2, CY = H / 2 + 8
 const R = 13, SPACING = 25
-const COLORS = ['#ff3b30', '#f9f002', '#39ff14', '#29e7cd', '#ff5db1']
+// Five hues spread ~55°+ apart so no two marbles are confusable. (The old
+// pink #ff5db1 sat only 34° from red — violet is far from every other hue.)
+const COLORS = ['#ff3b30', '#f9f002', '#39ff14', '#29e7cd', '#b15cff']
 
 // build a spiral path from outer edge into the hole near the centre
 function buildPath() {

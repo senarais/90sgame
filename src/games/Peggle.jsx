@@ -197,8 +197,9 @@ export default function Peggle({ onExit }) {
     ctx.fillStyle = '#04140a'; ctx.beginPath(); ctx.arc(AIM.x, AIM.y, 4, 0, 7); ctx.fill()
     // ball
     if (s.ball) {
-      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(s.ball.x, s.ball.y, BALL_R, 0, 7); ctx.fill()
-      ctx.strokeStyle = '#29e7cd'; ctx.lineWidth = 2; ctx.stroke()
+      // magenta so the ball never blends into the white flash of hit pegs
+      ctx.fillStyle = '#ff3caf'; ctx.beginPath(); ctx.arc(s.ball.x, s.ball.y, BALL_R, 0, 7); ctx.fill()
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke()
     }
     // bucket
     ctx.fillStyle = '#1f7a2b'; ctx.fillRect(s.bucket.x - 32, H - 26, 64, 20)
