@@ -142,15 +142,15 @@ export const GAMES = [
     color: '#ff3b30', icon: 'bounce',
     blurb: 'Momentum is everything. Grab the rings, dodge the spikes.',
     guide: {
-      objective: 'Roll and bounce through the level collecting every ring, then reach the exit. Momentum carries you — and dropping onto spikes ends the run.',
+      objective: 'Bounce across the platforms, collect every yellow ring, then reach the glowing exit. Land on a spike and you respawn at the start.',
       controls: [
         { keys: ['←', '→', 'A', 'D'], action: 'Roll left / right' },
         { keys: ['↑', 'W', 'SPACE'], action: 'Jump' },
       ],
       tips: [
-        'Blue rings make you big and heavy; pink rings make you small.',
-        'Build momentum before big jumps.',
-        'Collect all rings to open the exit.',
+        'You can jump about two tiles up and three across — plan your route.',
+        'Every yellow ring must be collected before the exit opens.',
+        'Landing hard makes you bounce again, so aim for wide platforms.',
       ],
     },
     component: lazy(() => import('./Bounce.jsx')),

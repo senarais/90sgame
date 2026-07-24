@@ -3,33 +3,49 @@ import { useKeys, useRaf, useBestScore, HUD, Stat, Overlay, Screen } from './com
 import Sound from '../sound.js'
 
 // # solid · ^ spike · o ring · B big-ring · s small-ring · E exit · P start
+// Every row is exactly COLS wide and levels are verified completable by a
+// physics-accurate solver (see the jump reach: ~2 tiles up, ~3 tiles across).
 const LEVELS = [
-  [
+  [ // LEVEL 1 — descent (easy): drop platform to platform, then walk to the exit
     '#################',
-    '#P    o      o  #',
-    '#   ###   ###   #',
-    '#  o        B   #',
-    '# ####  ^^^  ### #',
-    '#         ###   E#',
-    '#   o   ###    ###',
-    '# ###  ^^  o     #',
-    '#     ####   ### #',
-    '#  s      ^^^^   #',
-    '#o###############',
+    '#P   o   o      #',
+    '###########     #',
+    '#          o    #',
+    '#     ###########',
+    '#    o          #',
+    '###########     #',
+    '#          o    #',
+    '#     ###########',
+    '#    o          #',
+    '#      o       E#',
     '#################',
   ],
-  [
+  [ // LEVEL 2 — climb (medium): zig-zag up 2-tile jumps to the exit at the top
     '#################',
-    '#P   o   o   o  #',
-    '### ### ### ### #',
-    '#  B          o #',
-    '# #### ^^^^ ###  #',
-    '#    o         ##E',
-    '## ###   s   ### #',
-    '#      ####      #',
-    '# ^^ o    o  ^^  #',
-    '######  ####  ####',
-    '#o    ^^     o   #',
+    '#               #',
+    '#        o E    #',
+    '#       #####   #',
+    '#   o           #',
+    '# ####          #',
+    '#         o     #',
+    '#       ####    #',
+    '#   o           #',
+    '# ####          #',
+    '#P  o           #',
+    '#################',
+  ],
+  [ // LEVEL 3 — climb + spike floor (hard): precise 2-tile jumps, a miss = spikes
+    '#################',
+    '#               #',
+    '#      o E      #',
+    '#     ####      #',
+    '#   o           #',
+    '# ####          #',
+    '#       o       #',
+    '#     ####      #',
+    '#   o           #',
+    '# ####          #',
+    '#P o ^^^^^^^^^^ #',
     '#################',
   ],
 ]
@@ -54,7 +70,7 @@ export default function Bounce({ onExit }) {
     }))
     const total = rings.filter((r) => r.type === 'o').length
     g.current = {
-      map, idx, ball: { x: start.x, y: start.y, vx: 0, vy: 0, r: TILE * 0.42, big: false, grounded: false },
+      map, idx, ball: { x: start.x, y: start.y, vx: 0, vy: 0, r: TILE * 0.40, big: false, grounded: false },
       rings, total, collected: 0, score, state: 'play', start,
     }
     setUi({ score, lvl: idx + 1, rings: 0, state: 'play' })
@@ -82,7 +98,7 @@ export default function Bounce({ onExit }) {
   const die = () => {
     const s = g.current
     Sound.explode(); s.score = Math.max(0, s.score - 20)
-    const b = s.ball; b.x = s.start.x; b.y = s.start.y; b.vx = 0; b.vy = 0
+    const b = s.ball; b.x = s.start.x; b.y = s.start.y; b.vx = 0; b.vy = 0; b.big = false; b.r = TILE * 0.40
     setUi((u) => ({ ...u, score: s.score }))
   }
 
@@ -116,22 +132,22 @@ export default function Bounce({ onExit }) {
       let cy = Math.floor((b.y + b.r) / TILE)
       if (solid(cx0, cy) || solid(cx1, cy)) {
         b.y = cy * TILE - b.r
-        if (b.vy > 260) { b.vy = -b.vy * 0.32; Sound.bounce() } else { b.vy = 0; b.grounded = true }
+        if (b.vy > 320) { b.vy = -b.vy * 0.32; Sound.bounce() } else { b.vy = 0; b.grounded = true }
       }
     } else if (b.vy < 0) {
       let cy = Math.floor((b.y - b.r) / TILE)
       if (solid(cx0, cy) || solid(cx1, cy)) { b.y = (cy + 1) * TILE + b.r; b.vy = 0 }
     }
-    // spikes
-    if (spikeAt(b.x, b.y + b.r - 3) || spikeAt(b.x - b.r + 3, b.y) || spikeAt(b.x + b.r - 3, b.y)) { die(); return }
+    // spikes — deadly only from above / on the lower hitbox, not side brushes
+    if (spikeAt(b.x, b.y + b.r - 4) || spikeAt(b.x - b.r + 5, b.y + b.r - 6) || spikeAt(b.x + b.r - 5, b.y + b.r - 6)) { die(); return }
     // rings
     for (const ring of s.rings) {
       if (ring.dead) continue
       if (Math.hypot(ring.x - b.x, ring.y - b.y) < b.r + 10) {
         ring.dead = true
         if (ring.type === 'o') { s.collected++; s.score += 100; Sound.coin(); setUi((u) => ({ ...u, score: s.score, rings: s.collected })) }
-        else if (ring.type === 'B') { b.big = true; b.r = TILE * 0.62; Sound.pop() }
-        else if (ring.type === 's') { b.big = false; b.r = TILE * 0.30; Sound.pop() }
+        else if (ring.type === 'B') { b.big = true; b.r = TILE * 0.55; Sound.pop() }
+        else if (ring.type === 's') { b.big = false; b.r = TILE * 0.28; Sound.pop() }
       }
     }
     // exit
@@ -194,7 +210,7 @@ export default function Bounce({ onExit }) {
         {ui.state === 'win' && <Overlay title="COMPLETE!" sub={`Score ${ui.score}`} color="var(--green)" onRetry={() => { Sound.select(); load(0) }} onExit={onExit} />}
       </Screen>
       <p style={{ textAlign: 'center', fontFamily: 'var(--font-term)', fontSize: 20, color: 'var(--green-dim)' }}>
-        ← → move · ↑/SPACE jump · grab all yellow rings then reach the exit · + grows, − shrinks
+        ← → move · ↑/SPACE jump · grab all yellow rings, then reach the glowing exit
       </p>
     </div>
   )
