@@ -1,8 +1,10 @@
 import { Suspense, useState } from 'react'
 import Sound from '../sound.js'
+import GameGuide from './GameGuide.jsx'
 
 export default function GameShell({ game, onExit }) {
   const [muted, setMuted] = useState(Sound.muted)
+  const [started, setStarted] = useState(false) // show tutorial cards first
   const Game = game.component
   return (
     <div style={{ height: '100%', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
@@ -25,13 +27,17 @@ export default function GameShell({ game, onExit }) {
       </div>
 
       <div style={{ flex: 1, padding: '18px 12px 40px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
-        <Suspense fallback={
-          <div className="blink" style={{ textAlign: 'center', marginTop: 80, fontFamily: 'var(--font-title)', fontSize: 14, color: 'var(--yellow)' }}>
-            LOADING CARTRIDGE…
-          </div>
-        }>
-          <div key={game.id}><Game onExit={onExit} /></div>
-        </Suspense>
+        {!started ? (
+          <GameGuide game={game} onStart={() => setStarted(true)} />
+        ) : (
+          <Suspense fallback={
+            <div className="blink" style={{ textAlign: 'center', marginTop: 80, fontFamily: 'var(--font-title)', fontSize: 14, color: 'var(--yellow)' }}>
+              LOADING CARTRIDGE…
+            </div>
+          }>
+            <div key={game.id}><Game onExit={onExit} /></div>
+          </Suspense>
+        )}
       </div>
     </div>
   )
