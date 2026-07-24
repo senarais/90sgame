@@ -200,7 +200,15 @@ export default function PacMan({ onExit }) {
       s.score += d === 2 ? 50 : 10
       if (d === 2) {
         s.power = 7; s.ghostScore = 200
-        s.ghosts.forEach((gh) => { if (gh.state === 'out') { gh.frightened = true; reverse(gh) } })
+        // Frighten every ghost that isn't already heading home (out OR still
+        // in the house), so ghosts released mid-power emerge blue & edible.
+        // Only ghosts already outside reverse direction (classic behaviour).
+        s.ghosts.forEach((gh) => {
+          if (gh.state === 'out' || gh.state === 'house') {
+            gh.frightened = true
+            if (gh.state === 'out') reverse(gh)
+          }
+        })
         Sound.pop()
       } else Sound.step()
       bump()
@@ -277,7 +285,7 @@ export default function PacMan({ onExit }) {
     s.ghosts.forEach((gh) => {
       const gx = px(gh), gy = py(gh)
       let col = gh.color
-      if (gh.state === 'out' && gh.frightened) col = (s.power < 2 && Math.floor(s.blink * 6) % 2) ? '#fff' : '#2b3bff'
+      if (gh.frightened && gh.state !== 'eaten') col = (s.power < 2 && Math.floor(s.blink * 6) % 2) ? '#fff' : '#2b3bff'
       if (gh.state === 'eaten') col = 'rgba(120,140,200,0.4)'
       ctx.fillStyle = col
       ctx.beginPath()
