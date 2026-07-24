@@ -192,6 +192,24 @@ export const GAMES = [
     },
     component: lazy(() => import('./Sokoban.jsx')),
   },
+  {
+    id: 'snake', title: 'SNAKE', year: 1997, genre: 'Grid Survival',
+    color: '#39ff14', icon: 'snake',
+    blurb: 'The Nokia legend. Eat the apples, grow longer, never bite your own tail.',
+    guide: {
+      objective: 'Steer the snake to eat the glowing apples. Every apple makes you one segment longer and a little faster. Hit a wall or your own tail and the run ends.',
+      controls: [
+        { keys: ['↑', '↓', '←', '→'], action: 'Steer the snake' },
+        { keys: ['W', 'A', 'S', 'D'], action: 'Also steer' },
+      ],
+      tips: [
+        'You cannot turn back on yourself — plan each turn ahead.',
+        'The longer you grow, the faster the snake moves.',
+        'Leave yourself an exit; do not coil into a dead end.',
+      ],
+    },
+    component: lazy(() => import('./Snake.jsx')),
+  },
 ]
 
 export const getGame = (id) => GAMES.find((g) => g.id === id)

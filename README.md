@@ -1,12 +1,12 @@
 # 🕹️ 90s GAME ARCADE
 
-A fully front-end retro arcade built with **React + Vite** — no backend, no assets to download, just 10 classic games in one CRT-flavoured cabinet. Neon-green & digital-yellow Game Boy palette, pixel fonts, scanline overlay, and chiptune sound synthesised on the fly with the Web Audio API.
+A fully front-end retro arcade built with **React + Vite** — no backend, no assets to download, just 11 classic games in one CRT-flavoured cabinet. Neon-green & digital-yellow Game Boy palette, pixel fonts, scanline overlay, and chiptune sound synthesised on the fly with the Web Audio API.
 
 > Insert coin. 1 credit. Enjoy. 👾
 
 ## ✨ Features
 
-- **10 playable classics**, each a self-contained `<canvas>` game
+- **11 playable classics**, each a self-contained `<canvas>` game
 - **Pac-Man loading screen** → arcade home grid → per-game "do you want to play?" popup → play
 - **CRT styling** — scanlines, vignette, flicker, custom pixel cursor, `Press Start 2P` / `Pixelify Sans` / `VT323` fonts
 - **Zero audio files** — every blip, coin, and explosion is a synthesised chiptune (`src/sound.js`)
@@ -27,6 +27,7 @@ A fully front-end retro arcade built with **React + Vite** — no backend, no as
 | 8 | Bounce | 2001 | Physics Platformer | ← → move · ↑/Space jump · grab the rings |
 | 9 | Dig Dug | 1982 | Strategy Maze | WASD/Arrows dig · Space pump · drop rocks |
 | 10 | Sokoban | 1982 | Transport Puzzle | Arrows/WASD push · Z undo · R reset |
+| 11 | Snake | 1997 | Grid Survival | Arrows/WASD steer · eat apples · avoid walls & tail |
 
 ## 🚀 Getting started
 
@@ -46,7 +47,7 @@ npm run lint     # eslint
 Deep-link straight into a screen while developing:
 
 - `?screen=home` — skip the loading screen
-- `?game=<id>` — boot straight into a game (`tetris`, `pacman`, `zuma`, `peggle`, `arkanoid`, `frogger`, `spaceimpact`, `bounce`, `digdug`, `sokoban`)
+- `?game=<id>` — boot straight into a game (`tetris`, `pacman`, `zuma`, `peggle`, `arkanoid`, `frogger`, `spaceimpact`, `bounce`, `digdug`, `sokoban`, `snake`)
 
 ## 🗂️ Project structure
 

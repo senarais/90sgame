@@ -65,6 +65,17 @@ export default function GameIcon({ icon, color = '#39ff14', size = 56 }) {
         <circle key="g" cx="11" cy="11" r="1.6" fill="#f9f002" />,
         P(9, 9, 5, 5, 'none'), <rect key="gb" x="9" y="9" width="5" height="5" fill="none" stroke="#39ff14" strokeWidth="0.6" />,
       ])
+    case 'snake':
+      return svg([
+        // winding green body
+        P(2, 12, 2, 2, '#39ff14'), P(4, 12, 2, 2, '#39ff14'), P(6, 12, 2, 2, '#39ff14'),
+        P(6, 10, 2, 2, '#39ff14'), P(6, 8, 2, 2, '#39ff14'), P(8, 8, 2, 2, '#33e015'),
+        P(10, 8, 2, 2, '#33e015'), P(10, 6, 2, 2, '#39ff14'),
+        // head + eye
+        P(9, 3, 4, 4, '#39ff14'), <circle key="e" cx="12" cy="4.5" r="0.9" fill="#06210d" />,
+        // apple
+        <circle key="a" cx="4" cy="5" r="1.8" fill="#ff3b30" />, P(4, 2, 1, 1, '#39ff14'),
+      ])
     default:
       return svg([P(4, 4, 8, 8)])
   }
