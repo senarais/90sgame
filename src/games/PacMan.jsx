@@ -83,6 +83,7 @@ export default function PacMan({ onExit }) {
       mode: 'scatter', modeTimer: 7, blink: 0,
     }
     setUi({ score: 0, lives: 3, state: 'play' })
+    Sound.pacStart()
   }, [])
 
   // ---------- movement (from-tile -> to-tile with progress p in [0,1)) ----------
@@ -209,8 +210,8 @@ export default function PacMan({ onExit }) {
             if (gh.state === 'out') reverse(gh)
           }
         })
-        Sound.pop()
-      } else Sound.step()
+        Sound.pacPower()
+      } else Sound.pacWaka((s.eaten & 1) === 1) // alternating waka-waka chomp
       bump()
       if (s.eaten >= s.total) { s.state = 'win'; Sound.win(); submitBest(s.score); setUi((u) => ({ ...u, state: 'win' })); return }
     }
@@ -226,7 +227,7 @@ export default function PacMan({ onExit }) {
       step(gh, speed, dt, ghostChoose)
       // state transitions on arrival at key tiles
       if (gh.state === 'eaten' && gh.tc === HOUSE_CENTER[0] && gh.tr === HOUSE_CENTER[1]) {
-        gh.state = 'house'; gh.releaseAt = s.time + 0.6; gh.frightened = false
+        gh.state = 'house'; gh.releaseAt = s.time + 0.6; gh.frightened = false; Sound.pacRetreat()
       }
       if (gh.state === 'house' && gh.tc === HOUSE_EXIT[0] && gh.tr === HOUSE_EXIT[1]) {
         gh.state = 'out'
@@ -235,7 +236,7 @@ export default function PacMan({ onExit }) {
       if (Math.hypot(px(gh) - px(p), py(gh) - py(p)) < CELL * 0.6) {
         if (gh.state === 'out' && gh.frightened) {
           gh.state = 'eaten'; gh.frightened = false
-          s.score += s.ghostScore; s.ghostScore *= 2; Sound.coin(); bump()
+          s.score += s.ghostScore; s.ghostScore *= 2; Sound.pacEatGhost(); bump()
         } else if (gh.state === 'out') die()
       }
     })
@@ -243,7 +244,7 @@ export default function PacMan({ onExit }) {
 
   const die = () => {
     const s = g.current
-    s.lives -= 1; Sound.explode()
+    s.lives -= 1; Sound.pacDeath()
     if (s.lives < 0) { s.state = 'over'; submitBest(s.score); setUi((u) => ({ ...u, state: 'over', lives: 0 })); return }
     setUi((u) => ({ ...u, lives: s.lives }))
     s.pac = { tc: 9, tr: 15, nc: 8, nr: 15, p: 0, dir: 'left', want: 'left', stopped: false, mouth: 0 }

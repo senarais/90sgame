@@ -85,6 +85,42 @@ export const Sound = {
   push() { blip(160, 0.06, 'square', 0, 0.5) },
   step() { blip(240, 0.03, 'square', 0, 0.35) },
   bounce() { blip(500, 0.06, 'triangle', 0, 0.6, 900) },
+
+  // ---- Pac-Man ----
+  // Iconic "waka-waka" chomp. Pass an alternating boolean each dot so the
+  // two half-bites swap tone like the arcade original ("wa" then "ka").
+  pacWaka(open) {
+    if (open) blip(420, 0.05, 'square', 0, 0.45, 180)
+    else blip(180, 0.05, 'square', 0, 0.45, 420)
+  },
+  // Energizer: bright rising sparkle that announces hunt mode.
+  pacPower() {
+    blip(523, 0.06, 'square', 0, 0.7)
+    blip(784, 0.06, 'square', 0.05, 0.7)
+    blip(1047, 0.09, 'square', 0.10, 0.7)
+    blip(1568, 0.14, 'triangle', 0.16, 0.6)
+  },
+  // Eating a frightened ghost: quick rising "blurp".
+  pacEatGhost() {
+    blip(160, 0.05, 'square', 0, 0.6, 260)
+    blip(260, 0.05, 'square', 0.05, 0.6, 440)
+    blip(440, 0.09, 'square', 0.10, 0.6, 880)
+  },
+  // Eyes retreating to the house after being eaten.
+  pacRetreat() {
+    blip(1200, 0.05, 'triangle', 0, 0.28, 640)
+    blip(1000, 0.06, 'triangle', 0.05, 0.28, 520)
+  },
+  // Classic descending death warble (musical, not an explosion).
+  pacDeath() {
+    [988, 831, 699, 587, 494, 415, 349, 262].forEach((f, i) =>
+      blip(f, 0.15, 'square', i * 0.12, 0.6, f * 0.84))
+  },
+  // Short intro jingle when a new game starts.
+  pacStart() {
+    [[523, 0], [784, 0.11], [1047, 0.22], [784, 0.33], [1047, 0.44], [1319, 0.56]]
+      .forEach(([f, w]) => blip(f, 0.1, 'square', w, 0.6))
+  },
 }
 
 export default Sound
